@@ -18,7 +18,7 @@ lein new electron <name>
 * For production, platform specific binary produced on Mac OSX (dmg) and Windows (Setup exe).
 * Bower support for front-end dependencies and NPM support for node dependencies.
 * Basic application menu in the generated electron app.
-* Check for outdated cljs/node/bower dependencies.
+* Grunt task for checking of outdated cljs/node/bower dependencies.
 
 See app's [README.md](/resources/leiningen/new/electron/README.md) for more details.
 
