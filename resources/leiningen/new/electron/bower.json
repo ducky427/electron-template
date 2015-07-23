@@ -1,0 +1,17 @@
+{
+  "name": "{{name}}",
+  "version": "0.0.0",
+  "dependencies": {
+    "bootstrap": "3.3.5"
+  },
+  "license": "MIT",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests",
+    "spec"
+  ]
+}
