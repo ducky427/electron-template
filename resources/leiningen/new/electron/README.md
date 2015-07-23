@@ -5,10 +5,12 @@
 
 * JDK 1.7+
 * Leiningen 2.5.1
-* io.js 2.3.1
+* io.js 2.3.1 [This is done to match the verion of io.js being used in Electron v0.30.0]
 * [NSIS](http://nsis.sourceforge.net/) (*Windows only*)
 
 On Mac/Linux, installing io.js using [Node Version Manager](https://github.com/creationix/nvm) is recommended.
+
+This project uses Electron v0.30.0. Please check [Electron's GH site](https://github.com/atom/electron) for the latest version. The version is specified in `Gruntfile.js` under the `Grunt Config` section.
 
 ## Setup
 
