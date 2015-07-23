@@ -54,6 +54,10 @@ grunt launch
 
 You can edit the `src/cljs/{{sanitized}}/core.cljs` file and the changes should show up in the electron app without the need to re-launch.
 
+## Dependencies
+
+Node dependencies are in `package.json` file. Bower dependencies are in `bower.json` file. Clojure/ClojureScript dependencies are in `project.clj`.
+
 
 ## Icons
 
@@ -86,14 +90,19 @@ Note: you will need to be on OSX to create a DMG file and on Windows to create t
 
 ## Grunt commands
 
+To run a command, type `grunt <command>` in the terminal.
+
+
 | Command       | Description                                                                               |
 |---------------|-------------------------------------------------------------------------------------------|
 | setup         | Download electron project, installs bower dependencies and setups up the app config file. |
 | launch        | Launches the electron app                                                                 |
 | fresh-release | Creates a platform specific binary installer                                              |
-| outdated      | List all outdated clojure(script)/node/bower dependencies                                 |
+| outdated      | List all outdated clj/cljs/node/bower dependencies                                        |
 
 ## Leiningen commands
+
+To run a command, type `lein <command>` in the terminal.
 
 | Command       | Description                                                                               |
 |---------------|-------------------------------------------------------------------------------------------|
