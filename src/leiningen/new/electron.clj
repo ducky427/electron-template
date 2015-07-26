@@ -2,14 +2,13 @@
   (:require [leiningen.new.templates :refer [renderer name-to-path ->files sanitize-ns]]
             [leiningen.core.main :as main]
             [clojure.java.io :as io]
-            [clojure.string :as str])
-  (:import java.io.File))
+            [clojure.string :as str]))
 
 (def render (renderer "electron"))
 
 ;; From: https://github.com/http-kit/lein-template/blob/master/src/leiningen/new/http_kit.clj
 (defn binary [file]
-  (io/input-stream (io/resource (str/join File/separator ["leiningen" "new" "electron" file]))))
+  (io/input-stream (io/resource (str/join "/" ["leiningen" "new" "electron" file]))))
 
 (defn electron
   [name]
