@@ -7,8 +7,12 @@
 (def render (renderer "electron"))
 
 ;; From: https://github.com/http-kit/lein-template/blob/master/src/leiningen/new/http_kit.clj
-(defn binary [file]
-  (io/input-stream (io/resource (str/join "/" ["leiningen" "new" "electron" file]))))
+(defn binary [file-name]
+  (let [f     (str/join "/" ["leiningen" "new" "electron" file-name])
+        res   (io/resource f)]
+    (println f)
+    (println res)
+    (io/input-stream res)))
 
 (defn electron
   [name]
