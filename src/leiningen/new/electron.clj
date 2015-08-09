@@ -10,8 +10,6 @@
 (defn binary [file-name]
   (let [f     (str/join "/" ["leiningen" "new" "electron" file-name])
         res   (io/resource f)]
-    (println f)
-    (println res)
     (io/input-stream res)))
 
 (defn electron
