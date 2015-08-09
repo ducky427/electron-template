@@ -37,6 +37,7 @@
              ["app/index.html" (render "app/index.html" data)]
              ["app/package.json" (render "app/package.json" data)]
              ["app/prod.config.json" (render "app/prod.config.json" data)]
+             ["app/css/main.css" (render "app/css/main.css" data)]
              ["app/img/logo.icns" (binary "app/img/logo.icns")]
              ["app/img/logo.ico" (binary "app/img/logo.ico")]
              ["app/img/logo_96x96.png" (binary "app/img/logo_96x96.png")]

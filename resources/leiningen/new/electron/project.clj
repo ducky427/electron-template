@@ -25,6 +25,8 @@
 
   :clean-targets ^{:protect false} [:target-path "out" "app/js/p"]
 
+  :figwheel {:css-dirs ["app/css"]}
+
   :profiles {:dev {:cljsbuild {:builds {:app {:source-paths ["env/dev/cljs"]
                                               :compiler {:source-map true
                                                          :main       "{{project-ns}}.dev"
