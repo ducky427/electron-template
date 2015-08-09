@@ -7,7 +7,7 @@
   :source-paths ["src/cljs"]
 
   :dependencies [[org.clojure/clojure "1.7.0"]
-                 [org.clojure/clojurescript "0.0-3308"]
+                 [org.clojure/clojurescript "1.7.58"]
                  [cljsjs/react "0.13.3-1"]
                  [reagent "0.5.0"]]
 
@@ -33,7 +33,7 @@
 
                    :plugins [[lein-ancient "0.6.7"]
                              [lein-kibit "0.1.2"]
-                             [lein-cljfmt "0.2.1"]
+                             [lein-cljfmt "0.3.0"]
                              [lein-figwheel "0.3.7"]]}
              :production {:cljsbuild {:builds {:app {:compiler {:optimizations :advanced
                                                                 :main          "{{project-ns}}.prod"
