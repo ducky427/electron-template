@@ -14,7 +14,6 @@ figwheel_server.log
 /out
 /node_modules
 /electron
-/app/index.html
 /app/config.json
 /app/*.log
 /builds
