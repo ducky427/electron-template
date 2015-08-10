@@ -45,7 +45,7 @@ shellconfig.fatal = false;   // stop if cmd failed?
 grunt.initConfig({
 
   'download-electron': {
-    version: '0.30.3',
+    version: '0.30.4',
     outputDir: 'electron'
   }
 

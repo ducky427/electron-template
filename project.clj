@@ -1,4 +1,4 @@
-(defproject electron/lein-template "0.1.2"
+(defproject electron/lein-template "0.1.4"
   :description "A Leiningen template for an Electron/ClojureScript setup with Figwheel and Reagent."
   :url "https://github.com/ducky427/electron-template"
   :license {:name "MIT License"
