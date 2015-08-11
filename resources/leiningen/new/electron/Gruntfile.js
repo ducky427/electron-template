@@ -101,8 +101,7 @@ grunt.registerTask('check-old', function() {
   grunt.log.writeln("\nChecking clojure dependencies");
   exec("lein ancient :all", {silent:false});
   grunt.log.writeln("\nChecking npm dependencies");
-  exec("node_modules/npm-check-updates/bin/npm-check-updates -g", {silent:false});
-  exec("node_modules/npm-check-updates/bin/npm-check-updates", {silent:false});
+  exec("npm outdated", {silent:false});
   grunt.log.writeln("\nChecking bower dependencies");
   exec("bower list", {silent:false});
 });
