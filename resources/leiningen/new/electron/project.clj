@@ -11,7 +11,7 @@
                  [cljsjs/react "0.13.3-1"]
                  [reagent "0.5.0"]]
 
-  :plugins [[lein-cljsbuild "1.0.6"]]
+  :plugins [[lein-cljsbuild "1.1.0"]]
 
   :min-lein-version "2.5.1"
 
