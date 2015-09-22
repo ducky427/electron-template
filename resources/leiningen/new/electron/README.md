@@ -5,12 +5,12 @@
 
 * JDK 1.7+
 * Leiningen 2.5.1
-* io.js 3.1.0 [This is done to match the verion of io.js being used in Electron v0.31.0]
-* [NSIS](http://nsis.sourceforge.net/) (*Windows only*)
+* node.js 4.1.0 [This is done to match the verion of node.js being used in Electron v0.33.1]
+* [NSIS](http://nsis.sourceforge.net/)
 
-On Mac/Linux, installing io.js using [Node Version Manager](https://github.com/creationix/nvm) is recommended.
+On Mac/Linux, installing node.js using [Node Version Manager](https://github.com/creationix/nvm) is recommended.
 
-This project uses Electron v0.31.0. Please check [Electron's GH site](https://github.com/atom/electron) for the latest version. The version is specified in `Gruntfile.js` under the `Grunt Config` section.
+This project uses Electron v0.33.1. Please check [Electron's GitHub page](https://github.com/atom/electron) for the latest version. The version is specified in `Gruntfile.js` under the `Grunt Config` section.
 
 ## Setup
 
@@ -60,7 +60,6 @@ You can edit the `src/cljs/{{sanitized}}/core.cljs` file and the changes should 
 
 Node dependencies are in `package.json` file. Bower dependencies are in `bower.json` file. Clojure/ClojureScript dependencies are in `project.clj`.
 
-
 ## Icons
 
 Please replace the icons provided with your application's icons. The development icons are from [node-appdmg](https://github.com/LinusU/node-appdmg) project.
@@ -73,19 +72,25 @@ Files to replace:
 * scripts/dmg/TestBkg.png
 * scripts/dmg/TestBkg@2x.png
 
-## Building for release
+## Creating a build for release
 
-On windows before doing a production build, please edit the `scripts/build-windows-exe.nsi` file. The file is the script for creating the NSIS based setup file.
+To create a Windows build from a non-Windows platform, please install `wine`. On OS X, an easy option is using homebrew.
 
-On Mac OSX, please edit the variables for the plist in `finalizeMacRelease` function in `Gruntfile.js`.
+On Windows before doing a production build, please edit the `scripts/build-windows-exe.nsi` file. The file is the script for creating the NSIS based setup file.
 
-To build platform specific release file:
+On Mac OSX, please edit the variables for the plist in `release-mac` task in `Gruntfile.js`.
+
+Using [`electron-packager`](https://github.com/maxogden/electron-packager), we are able to create a directory which has OS executables (.app, .exe etc) running from any platform.
+
+If NSIS is available on the path, a further setup executable will be created for Windows. Further, if the release command is run from a OS X machine, a DMG file will be created.
+
+To create the release directories:
 
 ```
-grunt fresh-release
+grunt release
 ```
 
-This will create the binary in the `builds` folder.
+This will create the directories in the `builds` folder.
 
 Note: you will need to be on OSX to create a DMG file and on Windows to create the setup .exe file.
 
@@ -99,7 +104,7 @@ To run a command, type `grunt <command>` in the terminal.
 |---------------|-------------------------------------------------------------------------------------------|
 | setup         | Download electron project, installs bower dependencies and setups up the app config file. |
 | launch        | Launches the electron app                                                                 |
-| fresh-release | Creates a platform specific binary installer                                              |
+| release       | Creates a Win/OSX/Linux executables                                                       |
 | outdated      | List all outdated clj/cljs/node/bower dependencies                                        |
 
 ## Leiningen commands

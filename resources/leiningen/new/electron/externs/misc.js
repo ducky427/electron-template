@@ -4,11 +4,6 @@ var ipc = {};
 ipc.on = function() {};
 ipc.send = function() {};
 
-
-var fs = {};
-fs.listTreeSync = function() {};
-
-
 var remote = {};
 remote.require = function() {};
 remote.buildFromTemplate = function() {};

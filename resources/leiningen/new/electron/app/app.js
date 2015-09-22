@@ -1,6 +1,6 @@
 var app = require('app'),
     BrowserWindow = require('browser-window'),
-    fs = require('fs-plus'),
+    fs = require('fs-extra'),
     ipc = require('ipc'),
     Menu = require('menu'),
     path = require('path'),
@@ -31,9 +31,7 @@ var mainWindow = null;
 
 // make sure app.getDataPath() exists
 // https://github.com/oakmac/cuttle/issues/92
-if (!fs.isDirectorySync(app.getDataPath())) {
-  fs.mkdirSync(app.getDataPath());
-}
+fs.ensureDirSync(app.getDataPath());
 
 
 //------------------------------------------------------------------------------

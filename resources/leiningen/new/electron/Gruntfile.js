@@ -3,8 +3,7 @@ module.exports = function(grunt) {
 
 var moment = require('moment'),
       path = require('path'),
-        fs = require('fs-plus'),
-      asar = require('asar');
+  packager = require('electron-packager');
 
 var os = (function(){
   var platform = process.platform;
@@ -21,6 +20,9 @@ var exe = {
 };
 
 var electron_path = "electron";
+var electron_version = "0.33.1";
+
+var packageJson = require(__dirname + '/package.json');
 
 //------------------------------------------------------------------------------
 // ShellJS
@@ -45,7 +47,7 @@ shellconfig.fatal = false;   // stop if cmd failed?
 grunt.initConfig({
 
   'download-electron': {
-    version: '0.31.0',
+    version: electron_version,
     outputDir: 'electron'
   }
 
@@ -107,112 +109,12 @@ grunt.registerTask('check-old', function() {
 });
 
 //------------------------------------------------------------------------------
-// Release
+// Test Tasks
 //------------------------------------------------------------------------------
 
-grunt.registerTask('release', function() {
-
-  var build = getBuildMeta();
-  var paths = getReleasePaths(build);
-  var done = this.async();
-
-  prepRelease(                   build, paths);
-  copyElectronAndBuildToRelease( build, paths);
-  setReleaseConfig(              build, paths);
-  installNodeDepsToRelease(      build, paths);
-  stampRelease(                  build, paths);
-  makeAsarRelease(               build, paths, done);
-
-});
-
-grunt.registerTask('fresh-release', ['cljsbuild-prod', 'release']);
-
 //------------------------------------------------------------------------------
-// Release - config
+// Release Helper functions
 //------------------------------------------------------------------------------
-
-var electronShell = {
-  windows: {
-    exeToRename: "electron.exe",
-    renamedExe:  "{{name}}.exe",
-    resources:   "resources",
-    installExt:  "exe"
-  },
-  mac: {
-    exeToRename: "Electron.app",
-    renamedExe:  "{{name}}.app",
-    plist:       "Electron.app/Contents/Info.plist",
-    resources:   "Electron.app/Contents/Resources",
-    installExt:  "dmg"
-  },
-  linux: {
-    exeToRename: "electron",
-    renamedExe:  "{{name}}",
-    resources:   "resources"
-  }
-}[os];
-
-function getBuildMeta() {
-  grunt.log.writeln("Getting project metadata...");
-  var tokens = cat("project.clj").split(" ");
-  var build = {
-    name:    tokens[1],
-    version: tokens[2].replace(/"/g, "").trim(),
-    date:    moment().format("YYYY-MM-DD"),
-    commit:  exec("git rev-list HEAD --count", {silent:true}).output.trim()
-  };
-  build.releaseName = build.name + "-v" + build.version + "-" + os;
-  grunt.log.writeln("name:    "+build.name.cyan);
-  grunt.log.writeln("version: "+build.version.cyan);
-  grunt.log.writeln("date:    "+build.date.cyan);
-  grunt.log.writeln("commit:  "+build.commit.cyan);
-  grunt.log.writeln("release: "+build.releaseName.cyan);
-  return build;
-}
-
-function getReleasePaths(build) {
-  var paths = {
-    electron: "electron",
-    builds: "builds",
-    devApp: "app",
-    rootPkg: "package.json"
-  };
-  paths.release = path.join(paths.builds, build.releaseName);
-  paths.resources = path.join(paths.release, electronShell.resources);
-  paths.install = paths.release + "." + electronShell.installExt;
-  paths.releaseApp = paths.resources + path.sep + paths.devApp;
-  paths.devPkg = paths.devApp + "/package.json";
-  paths.prodCfg = paths.devApp + "/prod.config.json";
-  paths.releasePkg = paths.releaseApp + "/package.json";
-  paths.releaseCfg = paths.releaseApp + "/config.json";
-  paths.exeToRename = path.join(paths.release, electronShell.exeToRename);
-  paths.renamedExe = path.join(paths.release, electronShell.renamedExe);
-  paths.releaseResources = path.join(paths.resources, paths.devApp, "components");
-  return paths;
-}
-
-//------------------------------------------------------------------------------
-// Release - subtasks
-//------------------------------------------------------------------------------
-
-function prepRelease(build, paths) {
-  grunt.log.writeln("\nCleaning previous release...");
-  mkdir('-p', paths.builds);
-  rm('-rf', paths.install, paths.release);
-}
-
-function copyElectronAndBuildToRelease(build, paths) {
-  grunt.log.writeln("\nCopying Electron and {{name}} to release folder...");
-  grunt.log.writeln(paths.electron + " ==> " + paths.release.cyan);
-  grunt.log.writeln(paths.devApp + " ==> " + paths.resources.cyan);
-  cp('-r', paths.electron + "/", paths.release);
-  cp('-r', paths.devApp, paths.resources);
-
-  //delete extra resources
-
-  rm('-rf', path.join(paths.releaseApp, "js", "p", "out"));
-
-}
 
 function setReleaseConfig(build, paths) {
   grunt.log.writeln("\nRemoving config to force default release settings...");
@@ -220,29 +122,56 @@ function setReleaseConfig(build, paths) {
   cp(paths.prodCfg, paths.releaseCfg);
 }
 
-function installNodeDepsToRelease(build, paths) {
-  grunt.log.writeln("\nCopying node dependencies to release...");
-  cp('-f', paths.rootPkg, paths.releaseApp);
-  pushd(paths.releaseApp);
-  exec('npm install --no-optional --production');
-  popd();
-  cp('-f', paths.devPkg, paths.releaseApp);
+function getBuildMeta() {
+  grunt.log.writeln("Getting project metadata...");
+  var tokens = cat("project.clj").split(" ");
+  var build = {
+    name:    tokens[1],
+    version: tokens[2].replace(/"/g, "").trim(),
+    date:    moment().format("YYYY-MM-DD")
+  };
+  var commit = exec("git rev-list HEAD --count", {silent:true}).output.trim();
+  if (commit != '') {
+    build.commit = "pre";
+  } else {
+    build.commit = commit;
+  }
+  build.releaseName = build.name + "-v" + build.version + "-" + build.commit;
+  return build;
 }
 
-function makeAsarRelease(build, paths, done) {
-  var new_path = path.join(paths.releaseApp, "..", "app.asar");
-  grunt.log.writeln("Release: " + paths.releaseApp + ", Asar: " + new_path);
-  asar.createPackage(paths.releaseApp, new_path , function(err) {
-    grunt.log.writeln("Asar file created.");
-    cp(path.join(paths.releaseApp, "img", "logo.icns"), paths.resources);
-    rm('-rf', path.join(paths.releaseApp));
-    switch (os) {
-      case "mac":     finalizeMacRelease(     build, paths); break;
-      case "linux":   finalizeLinuxRelease(   build, paths); break;
-      case "windows": finalizeWindowsRelease( build, paths); break;
+function getReleasePaths(build) {
+  var paths = {
+    builds: "builds",
+    devApp: "app",
+    rootPkg: "package.json"
+  };
+  paths.release = path.join(paths.builds, build.releaseName);
+  paths.devPkg = path.join(paths.devApp, "package.json");
+  paths.prodCfg = path.join(paths.devApp, "prod.config.json");
+  paths.releaseApp = path.join(paths.builds, paths.devApp);
+  paths.releasePkg = path.join(paths.releaseApp, "package.json");
+  paths.releaseCfg = path.join(paths.releaseApp, "config.json");
+  paths.releaseResources = path.join(paths.releaseApp, "components");
+  return paths;
+}
+
+function getBasicReleaseInfo(build, paths) {
+  var opts = {
+    "dir": paths.releaseApp,
+    "name": packageJson.name,
+    "version": electron_version,
+    "asar": true,
+    "out": paths.release,
+    "overwrite": true,
+    "app-bundle-id": "com.example",
+    "app-version": build.version,
+    "version-string": {
+      "ProductVersion": build.version,
+      "ProductName": packageJson.name,
     }
-    done(err);
-  });
+  };
+  return opts;
 }
 
 function stampRelease(build, paths) {
@@ -254,84 +183,167 @@ function stampRelease(build, paths) {
   JSON.stringify(pkg, null, "  ").to(paths.releasePkg);
 }
 
-function updateVersionInReadme(build, paths) {
-  grunt.log.writeln("\nUpdating version and download links in readme...");
-  sed('-i', /v\d+\.\d+/g, "v"+build.version, "README.md");
+function defineRelease(done, extra_opts, cb) {
+  var callback = cb || (function () {});
+  var build = getBuildMeta();
+  var paths = getReleasePaths(build);
+  var basic_opts = getBasicReleaseInfo(build, paths);
+  var opts = Object.assign(basic_opts, extra_opts);
+
+  packager(opts, function(err, appPath) {
+    if (err) {
+      grunt.log.writeln("Error: ".red, err);
+    }
+    if (appPath) {
+      if (Array.isArray(appPath)) {
+        appPath.forEach(function(i) {
+          callback(i);
+          grunt.log.writeln("Build: " + i.cyan);
+        });
+      } else {
+        callback(appPath);
+        grunt.log.writeln("Build: " + appPath.cyan);
+      }
+    }
+    done(err);
+  });
 }
+
+function deleteExtraResources(paths) {
+  rm('-rf', path.join(paths.releaseApp, "js", "p", "out"));
+}
+
 
 //------------------------------------------------------------------------------
-// Release - finalization
+// Tasks
 //------------------------------------------------------------------------------
 
-function finalizeMacRelease(build, paths) {
+grunt.registerTask('release', ['cljsbuild-prod', 'prepare-release', 'release-linux', 'release-mac', 'release-win']);
 
-  grunt.log.writeln("\nChanging Electron app icon and bundle name...");
-  var plist = path.join(__dirname, paths.release, electronShell.plist);
-  exec("defaults write " + plist + " CFBundleIconFile logo.icns");
-  exec("defaults write " + plist + " CFBundleDisplayName {{name}}");
-  exec("defaults write " + plist + " CFBundleName {{name}}");
-  exec("defaults write " + plist + " CFBundleIdentifier com.example");
-  mv(paths.exeToRename, paths.renamedExe);
-  var app = paths.renamedExe;
+grunt.registerTask('cljsbuild-prod', function() {
+  grunt.log.writeln("\nCleaning and building ClojureScript production files...");
+  exec("lein do clean, with-profile production cljsbuild once");
+});
 
-  grunt.log.writeln("\nCreating dmg image...");
-  grunt.config.set("appdmg", {
-    options: {
-      "title": "{{name}}",
-      "background": "scripts/dmg/TestBkg.png",
-      "icon-size": 80,
-      "contents": [
-        { "x": 448, "y": 344, "type": "link", "path": "/Applications" },
-        { "x": 192, "y": 344, "type": "file", "path": app }
-      ]
-    },
-    target: {
-      dest: paths.install
-    }
-  });
-  grunt.task.run("appdmg");
-}
+grunt.registerTask('prepare-release', function() {
+  var build = getBuildMeta();
+  var paths = getReleasePaths(build);
 
-function finalizeLinuxRelease(build, paths) {
-  mv(paths.exeToRename, paths.renamedExe);
-}
+  grunt.log.writeln("name:    "+build.name.cyan);
+  grunt.log.writeln("version: "+build.version.cyan);
+  grunt.log.writeln("date:    "+build.date.cyan);
+  grunt.log.writeln("commit:  "+build.commit.cyan);
+  grunt.log.writeln("release: "+build.releaseName.cyan);
 
-function finalizeWindowsRelease(build, paths) {
-  grunt.log.writeln("\nChanging electron app icon and bundle name...");
-  mv(paths.exeToRename, paths.renamedExe);
-  var app = paths.renamedExe;
-  grunt.config.set("winresourcer", {
-    main: {
-      operation: "Update",
-      exeFile: app,
-      resourceType: "Icongroup",
-      resourceName: "1",
-      resourceFile: "app/img/logo.ico"
-    }
-  });
-  grunt.task.run("winresourcer");
+  mkdir('-p', paths.builds);
 
-  grunt.config.set("makensis", {
-    version:    build.version,
-    releaseDir: paths.release,
-    outFile:    paths.install
-  });
-  grunt.task.run("makensis");
-}
+  if (test("-d", paths.releaseApp)) {
+    rm('-r', paths.releaseApp);
+  }
+
+  if (test("-d", paths.release)) {
+    rm('-rf', paths.release);
+  }
+
+  //copy app folder
+  cp('-r', paths.devApp, paths.builds);
+
+  grunt.log.writeln("\nCopying node dependencies to release...");
+  cp('-f', paths.rootPkg, paths.releaseApp);
+  pushd(paths.releaseApp);
+  exec('npm install --no-optional --production --silent');
+  popd();
+  cp('-f', paths.devPkg, paths.releaseApp);
+
+  deleteExtraResources(paths);
+  stampRelease(build, paths);
+  setReleaseConfig(build, paths);
+});
+
+grunt.registerTask('release-linux', function() {
+  var done = this.async();
+  var opts = {
+    "arch": ["x64"],
+    "platform": "linux"
+  }
+  defineRelease(done, opts);
+});
 
 grunt.registerTask('makensis', function() {
   grunt.log.writeln("\nCreating installer...");
   var config = grunt.config.get("makensis");
-  exec(["makensis",
-    "/DPRODUCT_VERSION=" + config.version,
-    "/DRELEASE_DIR=../" + config.releaseDir,
-    "/DOUTFILE=../" + config.outFile,
-    "scripts/build-windows-exe.nsi"].join(" "));
+
+  var ret = exec(["makensis",
+                  "-DPRODUCT_VERSION=" + config.version,
+                  "-DRELEASE_DIR=" + config.releaseDir,
+                  "-DOUTFILE=" + config.outFile,
+                  "scripts/build-windows-exe.nsi"].join(" "));
+
+  if(ret.code === 0) {
+    grunt.log.writeln("\nInstaller created. Removing win32 folder:", config.releaseDir.cyan);
+    rm('-rf', config.releaseDir);
+  }
 });
 
-//------------------------------------------------------------------------------
-// Test Tasks
-//------------------------------------------------------------------------------
+
+grunt.registerTask('release-win', function() {
+  var done = this.async();
+  var build = getBuildMeta();
+  var cb = function (appPath) {
+    if (which("makensis")) {
+      var dirName = path.join(appPath, "..");
+      var exeName = path.join(dirName, path.basename(dirName) + ".exe");
+      grunt.config.set("makensis", {
+        version: build.version,
+        releaseDir: path.resolve(appPath), // absolute paths required on linux
+        outFile: path.resolve(exeName)
+      });
+      grunt.task.run("makensis");
+    }
+    else {
+        grunt.log.writeln("\nSkipping windows installer creation:", "makensis not installed or not in path".cyan);
+    }
+  };
+
+  var opts = {
+    "arch": ["x64"],
+    "platform": "win32",
+    "icon": "app/img/logo.ico"
+  }
+  defineRelease(done, opts, cb);
+});
+
+grunt.registerTask('release-mac', function() {
+  var done = this.async();
+  var cb = null;
+  if (os === "mac") {
+    cb = function (f) {
+      var dirName = path.join(f, "..")
+      var dmgName = path.join(dirName, path.basename(dirName) + ".dmg");
+      grunt.config.set("appdmg", {
+        options: {
+          "title": "{{name}}",
+          "background": "scripts/dmg/TestBkg.png",
+          "icon-size": 80,
+          "contents": [
+            { "x": 448, "y": 344, "type": "link", "path": "/Applications" },
+            { "x": 192, "y": 344, "type": "file", "path": path.join(f, packageJson.name + ".app") }
+          ]
+        },
+        target: {
+          dest: dmgName
+        }
+      });
+      grunt.task.run("appdmg");
+    }
+  }
+  var opts = {
+    "arch": "x64",
+    "platform": "darwin",
+    "icon": "app/img/logo.icns"
+  }
+  defineRelease(done, opts, cb);
+});
 
 
 //------------------------------------------------------------------------------
