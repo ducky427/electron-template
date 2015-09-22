@@ -15,7 +15,7 @@ lein new electron <name>
 ## Features
 
 * [Figwheel](https://github.com/bhauman/lein-figwheel) support.
-* For production, platform specific binary produced on Mac OSX (dmg) and Windows (Setup exe).
+* For production, platform specific binary produced for Mac OSX (.app) and Windows (.exe). Its further possible to creat a Setup exe and an installer DMG.
 * Bower support for front-end dependencies and NPM support for node dependencies.
 * Basic application menu in the generated electron app.
 * Grunt task for checking of outdated cljs/node/bower dependencies.
