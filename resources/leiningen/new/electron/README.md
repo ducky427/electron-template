@@ -74,8 +74,16 @@ user> (def figwheel-config
                         :asset-path "js/p/out"
                         :output-to "app/js/p/app.js"
                         :output-dir "app/js/p/out" }}]})
-
+#'user/figwheel-config
+user> (start-figwheel! figwheel-config)
+Figwheel: Starting server at http://localhost:3449
+Figwheel: Watching build - dev
+Compiling "resources/public/js/repler.js" from ["src/cljs" "env/dev/cljs"]...
+Successfully compiled "app/js/p/app.js" in 2.06 seconds.
+Figwheel: Starting CSS Watcher for paths  ["app/css"]
+#<SystemMap>
 ```
+
 See [Figwheel wiki](https://github.com/bhauman/lein-figwheel/wiki/Using-the-Figwheel-REPL-within-NRepl) for more details.
 
 ## Dependencies
