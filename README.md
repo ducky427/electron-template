@@ -25,7 +25,7 @@ See app's [README.md](/resources/leiningen/new/electron/README.md) for more deta
 ## Requirements
 
 * JDK 1.7+
-* Leiningen 2.x
+* Leiningen 2.5.3+
 
 ## License
 

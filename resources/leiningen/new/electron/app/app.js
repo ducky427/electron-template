@@ -1,12 +1,14 @@
-var app = require('app'),
-    BrowserWindow = require('browser-window'),
+var electron = require('electron'),
     fs = require('fs-extra'),
-    ipc = require('ipc'),
-    Menu = require('menu'),
     path = require('path'),
-    dialog = require('dialog'),
     shell = require('shell'),
     packageJson = require(__dirname + '/package.json');
+
+var ipc = electron.ipcMain;
+var app = electron.app;
+var dialog = electron.dialog;
+var BrowserWindow = electron.BrowserWindow;
+var Menu = electron.Menu;
 
 // Report crashes to atom-shell.
 require('crash-reporter').start();
@@ -31,7 +33,7 @@ var mainWindow = null;
 
 // make sure app.getDataPath() exists
 // https://github.com/oakmac/cuttle/issues/92
-fs.ensureDirSync(app.getDataPath());
+fs.ensureDirSync(app.getPath('userData'));
 
 
 //------------------------------------------------------------------------------
@@ -110,7 +112,7 @@ app.on('ready', function() {
   mainWindow = new BrowserWindow(browserWindowOptions);
 
   // and load the index.html of the app.
-  mainWindow.loadUrl('file://' + __dirname + '/index.html');
+  mainWindow.loadURL('file://' + __dirname + '/index.html');
 
   var menu = Menu.buildFromTemplate(menuTemplate);
 

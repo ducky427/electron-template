@@ -4,13 +4,13 @@
 ## Requirements
 
 * JDK 1.7+
-* Leiningen 2.5.1
-* node.js 4.1.0 [This is done to match the verion of node.js being used in Electron v0.33.1]
+* Leiningen 2.5.3
+* node.js 4.1.1 [This is done to match the verion of node.js being used in Electron v0.35.2]
 * [NSIS](http://nsis.sourceforge.net/)
 
 On Mac/Linux, installing node.js using [Node Version Manager](https://github.com/creationix/nvm) is recommended.
 
-This project uses Electron v0.33.1. Please check [Electron's GitHub page](https://github.com/atom/electron) for the latest version. The version is specified in `Gruntfile.js` under the `Grunt Config` section.
+This project uses Electron v0.35.2. Please check [Electron's GitHub page](https://github.com/atom/electron) for the latest version. The version is specified in `Gruntfile.js` under the `Grunt Config` section.
 
 ## Setup
 
@@ -55,6 +55,28 @@ grunt launch
 ```
 
 You can edit the `src/cljs/{{sanitized}}/core.cljs` file and the changes should show up in the electron app without the need to re-launch.
+
+## Using nREPL with figwheel
+
+- Start the repl using `lein repl`.
+
+```
+user> (use 'figwheel-sidecar.repl-api)
+nil
+user> (def figwheel-config
+        {:figwheel-options {:css-dirs ["app/css"]}
+         :build-ids ["dev"]
+         :all-builds
+           [{:id "dev"
+             :figwheel {:on-jsload "{{project-ns}}.core/mount-root"}
+             :source-paths ["src/cljs" "env/dev/cljs"]
+             :compiler {:main "{{project-ns}}.dev"
+                        :asset-path "js/p/out"
+                        :output-to "app/js/p/app.js"
+                        :output-dir "app/js/p/out" }}]})
+
+```
+See [Figwheel wiki](https://github.com/bhauman/lein-figwheel/wiki/Using-the-Figwheel-REPL-within-NRepl) for more details.
 
 ## Dependencies
 
