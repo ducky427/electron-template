@@ -12,7 +12,7 @@
                  [cljsjs/nodejs-externs "1.0.4-1"]
                  [reagent "0.5.1"]]
 
-  :plugins [[lein-cljsbuild "1.1.2"]]
+  :plugins [[lein-cljsbuild "1.1.3"]]
 
   :min-lein-version "2.5.3"
 
@@ -35,12 +35,12 @@
                                               :figwheel {:on-jsload "{{project-ns}}.core/mount-root"}}}}
                    :source-paths ["env/dev/cljs"]
 
-                   :dependencies [[figwheel-sidecar "0.5.0-3"]]
+                   :dependencies [[figwheel-sidecar "0.5.0-6"]]
 
                    :plugins [[lein-ancient "0.6.8"]
                              [lein-kibit "0.1.2"]
-                             [lein-cljfmt "0.3.0"]
-                             [lein-figwheel "0.5.0-3"]]}
+                             [lein-cljfmt "0.4.1"]
+                             [lein-figwheel "0.5.0-6"]]}
 
              :production {:cljsbuild {:builds {:app {:compiler {:optimizations :advanced
                                                                 :main          "{{project-ns}}.prod"

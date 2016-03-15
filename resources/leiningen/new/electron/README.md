@@ -5,7 +5,7 @@
 
 * JDK 1.7+
 * Leiningen 2.5.3
-* node.js 4.1.1 [This is done to match the verion of node.js being used in Electron v0.35.2]
+* node.js 5.1.1 [This is done to match the verion of node.js being used in Electron v0.37.2]
 * [NSIS](http://nsis.sourceforge.net/)
 
 On Mac/Linux, installing node.js using [Node Version Manager](https://github.com/creationix/nvm) is recommended.
